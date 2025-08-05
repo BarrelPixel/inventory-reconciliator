@@ -100,6 +100,31 @@ GMAIL_CREDENTIALS_PATH="credentials_gmail.json"
 GMAIL_TOKEN_PATH="token_gmail.json"
 ```
 
+## Quick Start
+
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Test your setup:**
+   ```bash
+   python test_setup.py
+   ```
+
+3. **Set up Google Cloud credentials** (see Setup Instructions below)
+
+4. **Create your `.env` file:**
+   ```bash
+   cp env.example .env
+   # Edit .env with your actual values
+   ```
+
+5. **Run the reconciliation:**
+   ```bash
+   python run.py
+   ```
+
 ## Usage
 
 ### Basic Usage
