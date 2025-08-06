@@ -2,11 +2,14 @@
 Google Sheets service for inventory management.
 """
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 import pandas as pd
 import structlog
 from typing import List, Dict, Any, Optional
 import os
+import json
 
 from src.config import settings
 
@@ -23,18 +26,46 @@ class SheetsService:
         self._authenticate()
     
     def _authenticate(self) -> None:
-        """Authenticate with Google Sheets API using service account."""
+        """Authenticate with Google Sheets API using OAuth 2.0."""
         try:
-            if not os.path.exists(settings.SHEETS_CREDENTIALS_PATH):
+            if not os.path.exists(settings.GMAIL_CREDENTIALS_PATH):
                 raise FileNotFoundError(
-                    f"Sheets credentials file not found: {settings.SHEETS_CREDENTIALS_PATH}. "
-                    "Please download service account credentials from Google Cloud Console."
+                    f"OAuth credentials file not found: {settings.GMAIL_CREDENTIALS_PATH}. "
+                    "Please download OAuth 2.0 credentials from Google Cloud Console."
                 )
             
-            creds = ServiceAccountCredentials.from_json_keyfile_name(
-                settings.SHEETS_CREDENTIALS_PATH, settings.SHEETS_SCOPES
-            )
-            self.client = gspread.authorize(creds)
+            creds = None
+            token_path = settings.SHEETS_TOKEN_PATH
+            
+            # Load existing token if available
+            if os.path.exists(token_path):
+                creds = Credentials.from_authorized_user_file(token_path, settings.SHEETS_SCOPES)
+            
+            # If no valid credentials available, let user log in
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    creds.refresh(Request())
+                else:
+                    flow = InstalledAppFlow.from_client_secrets_file(
+                        settings.GMAIL_CREDENTIALS_PATH, settings.SHEETS_SCOPES
+                    )
+                    creds = flow.run_local_server(port=0)
+                
+                # Save the credentials for the next run
+                with open(token_path, 'w') as token:
+                    token.write(creds.to_json())
+            
+            # Convert to format gspread expects
+            oauth2_creds = {
+                'token': creds.token,
+                'refresh_token': creds.refresh_token,
+                'token_uri': creds.token_uri,
+                'client_id': creds.client_id,
+                'client_secret': creds.client_secret,
+                'scopes': creds.scopes
+            }
+            
+            self.client = gspread.authorize(oauth2_creds)
             
             if not settings.GOOGLE_SHEET_ID:
                 raise ValueError(

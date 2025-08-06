@@ -14,10 +14,10 @@ class Settings:
     GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
     INVENTORY_WORKSHEET_NAME = os.getenv("INVENTORY_WORKSHEET_NAME", "Inventory")
     
-    # Credential file paths
-    SHEETS_CREDENTIALS_PATH = os.getenv("SHEETS_CREDENTIALS_PATH", "credentials_sheets.json")
+    # Credential file paths (OAuth 2.0 for both Gmail and Sheets)
     GMAIL_CREDENTIALS_PATH = os.getenv("GMAIL_CREDENTIALS_PATH", "credentials_gmail.json")
     GMAIL_TOKEN_PATH = os.getenv("GMAIL_TOKEN_PATH", "token_gmail.json")
+    SHEETS_TOKEN_PATH = os.getenv("SHEETS_TOKEN_PATH", "token_sheets.json")
     
     # Gmail search configuration
     GMAIL_SEARCH_QUERY = os.getenv("GMAIL_SEARCH_QUERY", "subject:Weekly Purchase Report")

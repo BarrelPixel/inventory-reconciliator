@@ -67,20 +67,16 @@ def test_credential_files():
     
     from src.config import settings
     
-    # Check if credential files exist
-    sheets_creds = os.path.exists(settings.SHEETS_CREDENTIALS_PATH)
+    # Check if OAuth 2.0 credential file exists (used for both Gmail and Sheets)
     gmail_creds = os.path.exists(settings.GMAIL_CREDENTIALS_PATH)
     
-    print(f"   - Sheets credentials: {'✅ Found' if sheets_creds else '❌ Missing'}")
-    print(f"   - Gmail credentials: {'✅ Found' if gmail_creds else '❌ Missing'}")
-    
-    if not sheets_creds:
-        print(f"   📝 Download service account credentials and save as: {settings.SHEETS_CREDENTIALS_PATH}")
+    print(f"   - OAuth 2.0 credentials: {'✅ Found' if gmail_creds else '❌ Missing'}")
     
     if not gmail_creds:
         print(f"   📝 Download OAuth 2.0 credentials and save as: {settings.GMAIL_CREDENTIALS_PATH}")
+        print(f"   📝 This file will be used for both Gmail and Google Sheets access")
     
-    return sheets_creds and gmail_creds
+    return gmail_creds
 
 def main():
     """Run all tests."""
